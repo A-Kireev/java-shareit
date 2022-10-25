@@ -1,12 +1,29 @@
-package ru.practicum.shareit.user.exception;
+package ru.practicum.shareit.commonhandler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.item.exception.IncorrectItemFieldException;
+import ru.practicum.shareit.item.exception.NoPermitsException;
+import ru.practicum.shareit.user.exception.BlankEmailException;
+import ru.practicum.shareit.user.exception.DuplicateEmailException;
+import ru.practicum.shareit.user.exception.UserDoesNotExistsException;
 
 @RestControllerAdvice
-public class UserExceptionHandler {
+public class CommonExceptionHandler {
+
+  @ExceptionHandler
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public String handleItemFieldsException(final IncorrectItemFieldException e) {
+    return e.getMessage();
+  }
+
+  @ExceptionHandler
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public String handleNoPermitsException(final NoPermitsException e) {
+    return e.getMessage();
+  }
 
   @ExceptionHandler
   @ResponseStatus(HttpStatus.CONFLICT)

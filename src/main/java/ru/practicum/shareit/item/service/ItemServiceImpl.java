@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dao.ItemDao;
@@ -34,7 +35,6 @@ public class ItemServiceImpl implements ItemService {
   @Override
   public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
     var itemPreviousVersion = storage.getItem(itemId);
-    System.out.println(itemPreviousVersion);
 
     if (itemPreviousVersion.getOwnerId() != userId) {
       throw new NoPermitsException("Пользователь с id: " + userId + " не имеет прав на редактирование данной вещи");
@@ -67,7 +67,7 @@ public class ItemServiceImpl implements ItemService {
 
   @Override
   public List<ItemDto> searchItem(String searchCriteria) {
-    if (searchCriteria.isBlank()) {
+    if (StringUtils.isBlank(searchCriteria)) {
       return Collections.emptyList();
     }
 
@@ -83,8 +83,8 @@ public class ItemServiceImpl implements ItemService {
   }
 
   private void checkFieldsFilled(ItemDto itemDto) {
-    var isNameFilledCorrectly = itemDto.getName() != null && !itemDto.getName().isBlank();
-    var isDescriptionFilledCorrectly = itemDto.getDescription() != null && !itemDto.getDescription().isBlank();
+    var isNameFilledCorrectly = StringUtils.isNoneBlank(itemDto.getName());
+    var isDescriptionFilledCorrectly = StringUtils.isNoneBlank(itemDto.getDescription());
     var isAvailableFilledCorrectly = itemDto.getIsAvailable() != null;
 
     if (!isNameFilledCorrectly || !isDescriptionFilledCorrectly || !isAvailableFilledCorrectly) {
