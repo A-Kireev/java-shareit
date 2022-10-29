@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -61,18 +62,13 @@ public class UserServiceImpl implements UserService {
   }
 
   private void checkEmailUniqueness(UserDto userDto) {
-    var isEmailAlreadyExists = storage.findAll().stream()
-        .map(User::getEmail)
-        .collect(Collectors.toList())
-        .contains(userDto.getEmail());
-
-    if (isEmailAlreadyExists) {
+    if (storage.existsByEmail(userDto.getEmail())) {
       throw new DuplicateEmailException("Данный адрес электронной почты уже зарегистрирован");
     }
   }
 
   private void checkEmailPresents(UserDto userDto) {
-    if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
+    if (StringUtils.isBlank(userDto.getEmail())) {
       throw new BlankEmailException("Адрес электронной почты должен быть заполнен");
     }
   }
