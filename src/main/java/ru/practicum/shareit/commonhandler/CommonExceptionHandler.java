@@ -1,5 +1,6 @@
 package ru.practicum.shareit.commonhandler;
 
+import java.util.NoSuchElementException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -40,6 +41,12 @@ public class CommonExceptionHandler {
   @ExceptionHandler
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public String handleUserDoesNotExistsException(final UserDoesNotExistsException e) {
+    return e.getMessage();
+  }
+
+  @ExceptionHandler
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public String handleNoSuchElementException(final NoSuchElementException e) {
     return e.getMessage();
   }
 }
