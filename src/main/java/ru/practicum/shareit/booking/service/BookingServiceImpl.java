@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,7 @@ import ru.practicum.shareit.booking.dto.BookingCreateResponseDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.item.exception.NoPermitsException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -42,12 +45,38 @@ public class BookingServiceImpl implements BookingService {
         .orElseThrow(() -> new NoSuchElementException("Booking with id: " + bookingId + " doesn't exists"));
     var item = itemRepository.findById(booking.getItemId()).orElseThrow();
 
-    if (!(userId == item.getOwnerId())) {
+    if (userId != item.getOwnerId()) {
       throw new IllegalStateException("User with id " + userId + " not item owner");
     }
 
     booking.setStatus(isApproved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
     booking = bookingRepository.save(booking);
     return BookingMapper.toBookingCreateResponseDto(booking, booker, item);
+  }
+
+  @Override
+  public BookingCreateResponseDto getBookingInfo(long userId, long bookingId) {
+    var booker = userRepository.findById(userId)
+        .orElseThrow(() -> new NoSuchElementException("User with id: " + userId + " doesn't exists"));
+    var booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new NoSuchElementException("Booking with id: " + bookingId + " doesn't exists"));
+    var item = itemRepository.findById(booking.getItemId()).orElseThrow();
+
+    if (userId != item.getOwnerId() || userId != booking.getBookerId()) {
+      throw new NoPermitsException("User with id " + userId + " has no permits");
+    }
+
+    return BookingMapper.toBookingCreateResponseDto(booking, booker, item);
+  }
+
+  @Override
+  public List<BookingCreateResponseDto> getAllBookingInfo(long userId, String state) {
+    var bookings = "ALL".equals(state)
+        ? bookingRepository.findAllByBookerId(userId)
+        : bookingRepository.findAllByBookerIdAndStatus(userId, state);
+
+    return bookings.stream()
+        .map(BookingMapper::toBookingCreateResponseDto)
+        .collect(Collectors.toList());
   }
 }
