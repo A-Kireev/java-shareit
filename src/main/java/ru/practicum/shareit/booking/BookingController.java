@@ -1,10 +1,13 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingCreateRequestDto;
 import ru.practicum.shareit.booking.dto.BookingCreateResponseDto;
@@ -21,5 +24,12 @@ public class BookingController {
   public BookingCreateResponseDto bookItem(@RequestHeader("X-Sharer-User-Id") long bookerId,
       @RequestBody BookingCreateRequestDto createRequestDto) {
     return bookingService.bookItem(bookerId, createRequestDto);
+  }
+
+  @PatchMapping("/{bookingId}")
+  public BookingCreateResponseDto decidingOnRequest(@RequestHeader("X-Sharer-User-Id") long userId,
+      @PathVariable long bookingId,
+      @RequestParam("approved") boolean isApproved) {
+    return bookingService.decidingOnRequest(userId, bookingId, isApproved);
   }
 }

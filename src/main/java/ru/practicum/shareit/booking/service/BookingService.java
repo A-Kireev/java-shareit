@@ -6,4 +6,6 @@ import ru.practicum.shareit.booking.dto.BookingCreateResponseDto;
 public interface BookingService {
 
   BookingCreateResponseDto bookItem(long bookerId, BookingCreateRequestDto requestDto);
+
+  BookingCreateResponseDto decidingOnRequest(long userId, long bookingId, boolean isApproved);
 }
