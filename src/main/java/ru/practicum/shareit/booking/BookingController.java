@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingCreateRequestDto;
 import ru.practicum.shareit.booking.dto.BookingCreateResponseDto;
+import ru.practicum.shareit.booking.model.BookingFilter;
 import ru.practicum.shareit.booking.service.BookingService;
 
 @RequiredArgsConstructor
@@ -44,7 +45,7 @@ public class BookingController {
 
   @GetMapping
   public List<BookingCreateResponseDto> getAllBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId,
-      @RequestParam(required = false, defaultValue = "ALL") String state) {
+      @RequestParam(required = false, defaultValue = "ALL") BookingFilter state) {
     return bookingService.getAllBookingInfo(userId, state);
   }
 }

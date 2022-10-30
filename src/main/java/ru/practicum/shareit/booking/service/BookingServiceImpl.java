@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -9,9 +11,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingCreateRequestDto;
 import ru.practicum.shareit.booking.dto.BookingCreateResponseDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingFilter;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.item.exception.NoPermitsException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -46,7 +49,7 @@ public class BookingServiceImpl implements BookingService {
     var item = itemRepository.findById(booking.getItemId()).orElseThrow();
 
     if (userId != item.getOwnerId()) {
-      throw new IllegalStateException("User with id " + userId + " not item owner");
+      throw new NoSuchElementException("User with id " + userId + " not item owner");
     }
 
     booking.setStatus(isApproved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
@@ -63,22 +66,47 @@ public class BookingServiceImpl implements BookingService {
     var item = itemRepository.findById(booking.getItemId()).orElseThrow();
 
     if (userId != item.getOwnerId() && userId != booking.getBookerId()) {
-      throw new NoPermitsException("User with id " + userId + " has no permits");
+      throw new NoSuchElementException("User with id " + userId + " has no permits");
     }
 
     return BookingMapper.toBookingCreateResponseDto(booking, booker, item);
   }
 
   @Override
-  public List<BookingCreateResponseDto> getAllBookingInfo(long userId, String state) {
+  public List<BookingCreateResponseDto> getAllBookingInfo(long userId, BookingFilter state) {
     userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
-    var bookings = "ALL".equals(state)
-        ? bookingRepository.findAllByBookerIdOrderByStartDateTimeDesc(userId)
-        : bookingRepository.findAllByBookerIdAndStatusOrderByStartDateTimeDesc(userId,
-            BookingStatus.valueOf(state).name());
+    List<Booking> bookings = new ArrayList<>();
+
+    switch (state) {
+      case ALL:
+        bookings = bookingRepository.findAllByBookerIdOrderByStartDateTimeDesc(userId);
+        break;
+      case CURRENT:
+        bookings = bookingRepository.findAllCurrentBookingsByBookerId(userId, LocalDateTime.now());
+        break;
+      case PAST:
+        bookings = bookingRepository.findAllByBookerIdAndStartDateTimeBeforeOrderByStartDateTimeDesc(userId,
+            LocalDateTime.now());
+        break;
+      case FUTURE:
+        bookings = bookingRepository.findAllByBookerIdAndStartDateTimeAfterOrderByStartDateTimeDesc(userId,
+            LocalDateTime.now());
+        break;
+      case WAITING:
+        bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDateTimeDesc(userId,
+            BookingStatus.WAITING);
+        break;
+      case REJECTED:
+        bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDateTimeDesc(userId,
+            BookingStatus.REJECTED);
+        break;
+    }
 
     return bookings.stream()
-        .map(BookingMapper::toBookingCreateResponseDto)
+        .map(s -> BookingMapper
+            .toBookingCreateResponseDto(s,
+                userRepository.findById(s.getBookerId()).orElseThrow(),
+                itemRepository.findById(s.getItemId()).orElseThrow()))
         .collect(Collectors.toList());
   }
 }
