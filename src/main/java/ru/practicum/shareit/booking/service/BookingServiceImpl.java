@@ -25,8 +25,11 @@ public class BookingServiceImpl implements BookingService {
         .orElseThrow(() -> new NoSuchElementException("User with id: " + bookerId + " doesn't exists"));
     var item = itemRepository.findById(requestDto.getItemId())
         .orElseThrow(() -> new NoSuchElementException("Item with id: " + requestDto.getItemId() + " doesn't exists"));
-    var booking = bookingRepository.save(BookingMapper.toBooking(bookerId, requestDto));
+    if (!item.getIsAvailable()) {
+      throw new IllegalStateException("Item with id: " + item.getId() + " is not available");
+    }
 
+    var booking = bookingRepository.save(BookingMapper.toBooking(bookerId, requestDto));
     return BookingMapper.toBookingCreateResponseDto(booking, booker, item);
   }
 }

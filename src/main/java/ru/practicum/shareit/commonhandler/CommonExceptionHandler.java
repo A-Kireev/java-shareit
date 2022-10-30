@@ -49,4 +49,10 @@ public class CommonExceptionHandler {
   public String handleNoSuchElementException(final NoSuchElementException e) {
     return e.getMessage();
   }
+
+  @ExceptionHandler
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public String handleIllegalStateException(final IllegalStateException e) {
+    return e.getMessage();
+  }
 }
