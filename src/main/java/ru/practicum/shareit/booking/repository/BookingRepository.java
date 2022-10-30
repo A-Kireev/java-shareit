@@ -7,7 +7,7 @@ import ru.practicum.shareit.booking.model.BookingExt;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-  List<BookingExt> findAllByBookerId(long userId);
+  List<BookingExt> findAllByBookerIdOrderByStartDateTimeDesc(long userId);
 
-  List<BookingExt> findAllByBookerIdAndStatus(long bookerId, String status);
+  List<BookingExt> findAllByBookerIdAndStatusOrderByStartDateTimeDesc(long bookerId, String status);
 }
