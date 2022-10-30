@@ -39,10 +39,10 @@ public class BookingServiceImpl implements BookingService {
 
   @Override
   public BookingCreateResponseDto decidingOnRequest(long userId, long bookingId, boolean isApproved) {
-    var booker = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("User with id: " + userId + " doesn't exists"));
     var booking = bookingRepository.findById(bookingId)
         .orElseThrow(() -> new NoSuchElementException("Booking with id: " + bookingId + " doesn't exists"));
+    var booker = userRepository.findById(booking.getBookerId())
+        .orElseThrow(NoSuchElementException::new);
     var item = itemRepository.findById(booking.getItemId()).orElseThrow();
 
     if (userId != item.getOwnerId()) {
@@ -56,13 +56,13 @@ public class BookingServiceImpl implements BookingService {
 
   @Override
   public BookingCreateResponseDto getBookingInfo(long userId, long bookingId) {
-    var booker = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("User with id: " + userId + " doesn't exists"));
     var booking = bookingRepository.findById(bookingId)
         .orElseThrow(() -> new NoSuchElementException("Booking with id: " + bookingId + " doesn't exists"));
+    var booker = userRepository.findById(booking.getBookerId())
+        .orElseThrow(NoSuchElementException::new);
     var item = itemRepository.findById(booking.getItemId()).orElseThrow();
 
-    if (userId != item.getOwnerId() || userId != booking.getBookerId()) {
+    if (userId != item.getOwnerId() && userId != booking.getBookerId()) {
       throw new NoPermitsException("User with id " + userId + " has no permits");
     }
 
@@ -71,9 +71,11 @@ public class BookingServiceImpl implements BookingService {
 
   @Override
   public List<BookingCreateResponseDto> getAllBookingInfo(long userId, String state) {
+    userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
     var bookings = "ALL".equals(state)
         ? bookingRepository.findAllByBookerIdOrderByStartDateTimeDesc(userId)
-        : bookingRepository.findAllByBookerIdAndStatusOrderByStartDateTimeDesc(userId, BookingStatus.valueOf(state).name());
+        : bookingRepository.findAllByBookerIdAndStatusOrderByStartDateTimeDesc(userId,
+            BookingStatus.valueOf(state).name());
 
     return bookings.stream()
         .map(BookingMapper::toBookingCreateResponseDto)
