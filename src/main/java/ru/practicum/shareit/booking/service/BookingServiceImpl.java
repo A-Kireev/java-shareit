@@ -73,7 +73,7 @@ public class BookingServiceImpl implements BookingService {
   public List<BookingCreateResponseDto> getAllBookingInfo(long userId, String state) {
     var bookings = "ALL".equals(state)
         ? bookingRepository.findAllByBookerId(userId)
-        : bookingRepository.findAllByBookerIdAndStatus(userId, state);
+        : bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.valueOf(state).name());
 
     return bookings.stream()
         .map(BookingMapper::toBookingCreateResponseDto)

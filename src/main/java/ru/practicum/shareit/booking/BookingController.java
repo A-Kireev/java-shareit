@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -38,5 +39,11 @@ public class BookingController {
   public BookingCreateResponseDto getBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId,
       @PathVariable long bookingId) {
     return bookingService.getBookingInfo(userId, bookingId);
+  }
+
+  @GetMapping
+  public List<BookingCreateResponseDto> getAllBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId,
+      @RequestParam(required = false, defaultValue = "ALL") String state) {
+    return bookingService.getAllBookingInfo(userId, state);
   }
 }
