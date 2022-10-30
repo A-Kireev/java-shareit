@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.exception.BlankEmailException;
-import ru.practicum.shareit.user.exception.DuplicateEmailException;
 import ru.practicum.shareit.user.exception.UserDoesNotExistsException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -23,7 +22,6 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDto createUser(UserDto userDto) {
     checkEmailPresents(userDto);
-    checkEmailUniqueness(userDto);
 
     var user = storage.save(UserMapper.toUser(userDto));
     return UserMapper.toUserDto(user);
@@ -31,7 +29,6 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDto updateUser(long userId, UserDto userDto) {
-    checkEmailUniqueness(userDto);
     var userPreviousVersion = storage.findById(userId).orElseThrow();
     var updatedUser = User.builder()
         .id(userId)
@@ -59,12 +56,6 @@ public class UserServiceImpl implements UserService {
   @Override
   public void deleteUser(long userId) {
     storage.deleteById(userId);
-  }
-
-  private void checkEmailUniqueness(UserDto userDto) {
-    if (storage.existsByEmail(userDto.getEmail())) {
-      throw new DuplicateEmailException("Данный адрес электронной почты уже зарегистрирован");
-    }
   }
 
   private void checkEmailPresents(UserDto userDto) {

@@ -14,19 +14,19 @@ import ru.practicum.shareit.item.exception.IncorrectItemFieldException;
 import ru.practicum.shareit.item.exception.NoPermitsException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.exception.UserDoesNotExistsException;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemServiceImpl implements ItemService {
 
   private final ItemRepository storage;
-  private final UserService userService;
+  private final UserRepository userRepository;
 
   @Override
   public ItemDto createItem(long userId, ItemDto itemDto) {
-    checkUserExists(userId);
+    userRepository.findById(userId)
+        .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
     checkFieldsFilled(itemDto);
 
     var item = storage.save(ItemMapper.toItem(itemDto, userId, null));
@@ -76,12 +76,6 @@ public class ItemServiceImpl implements ItemService {
         .stream()
         .map(ItemMapper::toItemDto)
         .collect(Collectors.toList());
-  }
-
-  private void checkUserExists(long userId) {
-    if (userService.getUser(userId) == null) {
-      throw new UserDoesNotExistsException("User with id: " + userId + " doesn't exists");
-    }
   }
 
   private void checkFieldsFilled(ItemDto itemDto) {
