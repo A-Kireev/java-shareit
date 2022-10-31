@@ -30,4 +30,8 @@ public class Item {
   private Long ownerId;
   @Column(name = "request_id")
   private String request;
+
+  public Item(long itemId) {
+    this.id = itemId;
+  }
 }

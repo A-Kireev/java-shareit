@@ -28,7 +28,7 @@ public class BookingServiceImpl implements BookingService {
 
   @Override
   public BookingCreateResponseDto bookItem(long bookerId, BookingCreateRequestDto requestDto) {
-    var booker = userRepository.findById(bookerId)
+    userRepository.findById(bookerId)
         .orElseThrow(() -> new NoSuchElementException("User with id: " + bookerId + " doesn't exists"));
     var item = itemRepository.findById(requestDto.getItemId())
         .orElseThrow(() -> new NoSuchElementException("Item with id: " + requestDto.getItemId() + " doesn't exists"));
@@ -37,39 +37,33 @@ public class BookingServiceImpl implements BookingService {
     }
 
     var booking = bookingRepository.save(BookingMapper.toBooking(bookerId, requestDto));
-    return BookingMapper.toBookingCreateResponseDto(booking, booker, item);
+    return BookingMapper.toBookingCreateResponseDto(booking);
   }
 
   @Override
   public BookingCreateResponseDto decidingOnRequest(long userId, long bookingId, boolean isApproved) {
     var booking = bookingRepository.findById(bookingId)
         .orElseThrow(() -> new NoSuchElementException("Booking with id: " + bookingId + " doesn't exists"));
-    var booker = userRepository.findById(booking.getBookerId())
-        .orElseThrow(NoSuchElementException::new);
-    var item = itemRepository.findById(booking.getItemId()).orElseThrow();
 
-    if (userId != item.getOwnerId()) {
+    if (userId != booking.getItem().getOwnerId()) {
       throw new NoSuchElementException("User with id " + userId + " not item owner");
     }
 
     booking.setStatus(isApproved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
     booking = bookingRepository.save(booking);
-    return BookingMapper.toBookingCreateResponseDto(booking, booker, item);
+    return BookingMapper.toBookingCreateResponseDto(booking);
   }
 
   @Override
   public BookingCreateResponseDto getBookingInfo(long userId, long bookingId) {
     var booking = bookingRepository.findById(bookingId)
         .orElseThrow(() -> new NoSuchElementException("Booking with id: " + bookingId + " doesn't exists"));
-    var booker = userRepository.findById(booking.getBookerId())
-        .orElseThrow(NoSuchElementException::new);
-    var item = itemRepository.findById(booking.getItemId()).orElseThrow();
 
-    if (userId != item.getOwnerId() && userId != booking.getBookerId()) {
+    if (userId != booking.getItem().getOwnerId() && userId != booking.getBooker().getId()) {
       throw new NoSuchElementException("User with id " + userId + " has no permits");
     }
 
-    return BookingMapper.toBookingCreateResponseDto(booking, booker, item);
+    return BookingMapper.toBookingCreateResponseDto(booking);
   }
 
   @Override
@@ -103,10 +97,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     return bookings.stream()
-        .map(s -> BookingMapper
-            .toBookingCreateResponseDto(s,
-                userRepository.findById(s.getBookerId()).orElseThrow(),
-                itemRepository.findById(s.getItemId()).orElseThrow()))
+        .map(BookingMapper::toBookingCreateResponseDto)
         .collect(Collectors.toList());
   }
 }

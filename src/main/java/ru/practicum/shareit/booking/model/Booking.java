@@ -8,12 +8,16 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 @Getter
 @Setter
@@ -31,10 +35,12 @@ public class Booking {
   private LocalDateTime startDateTime;
   @Column(name = "end_date")
   private LocalDateTime endDateTime;
-  @Column(name = "item_id")
-  private Long itemId;
-  @Column(name = "booker_id")
-  private Long bookerId;
+  @ManyToOne
+  @JoinColumn(name = "item_id", referencedColumnName = "id")
+  private Item item;
+  @ManyToOne
+  @JoinColumn(name = "booker_id", referencedColumnName = "id")
+  private User booker;
   @Enumerated(EnumType.STRING)
   private BookingStatus status;
 }
