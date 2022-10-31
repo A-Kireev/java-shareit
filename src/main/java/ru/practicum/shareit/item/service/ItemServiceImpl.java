@@ -11,11 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemWithBookingInfoDto;
 import ru.practicum.shareit.item.exception.NoPermitsException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -26,6 +29,7 @@ public class ItemServiceImpl implements ItemService {
   private final ItemRepository storage;
   private final UserRepository userRepository;
   private final BookingRepository bookingRepository;
+  private final CommentRepository commentRepository;
 
   @Override
   public ItemDto createItem(long userId, ItemDto itemDto) {
@@ -99,6 +103,15 @@ public class ItemServiceImpl implements ItemService {
         .stream()
         .map(ItemMapper::toItemDto)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
+    var user = userRepository.findById(userId).orElseThrow();
+    var comment = commentRepository.save(CommentMapper.toComment(commentDto, userId, itemId));
+    comment.setAuthor(user);
+
+    return CommentMapper.toCommentDto(comment);
   }
 
   private void checkFieldsFilled(ItemDto itemDto) {
