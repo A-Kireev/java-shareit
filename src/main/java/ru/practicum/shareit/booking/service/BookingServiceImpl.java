@@ -15,6 +15,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingFilter;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -92,6 +93,45 @@ public class BookingServiceImpl implements BookingService {
         break;
       case REJECTED:
         bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDateTimeDesc(userId,
+            BookingStatus.REJECTED);
+        break;
+    }
+
+    return bookings.stream()
+        .map(BookingMapper::toBookingCreateResponseDto)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<BookingCreateResponseDto> getAllOwnerBookingInfo(long userId, BookingFilter state) {
+    userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
+    var userItems = itemRepository.findAllByOwnerId(userId).stream()
+        .map(Item::getId)
+        .collect(Collectors.toList());
+
+    List<Booking> bookings = new ArrayList<>();
+
+    switch (state) {
+      case ALL:
+        bookings = bookingRepository.findAllByItemIdInOrderByStartDateTimeDesc(userItems);
+        break;
+      case CURRENT:
+        bookings = bookingRepository.findAllCurrentBookingsByItemsIds(userItems, LocalDateTime.now());
+        break;
+      case PAST:
+        bookings = bookingRepository.findAllByItemIdInAndStartDateTimeBeforeOrderByStartDateTimeDesc(userItems,
+            LocalDateTime.now());
+        break;
+      case FUTURE:
+        bookings = bookingRepository.findAllByItemIdInAndStartDateTimeAfterOrderByStartDateTimeDesc(userItems,
+            LocalDateTime.now());
+        break;
+      case WAITING:
+        bookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDateTimeDesc(userItems,
+            BookingStatus.WAITING);
+        break;
+      case REJECTED:
+        bookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDateTimeDesc(userItems,
             BookingStatus.REJECTED);
         break;
     }

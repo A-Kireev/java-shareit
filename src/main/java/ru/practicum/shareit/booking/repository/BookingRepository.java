@@ -24,4 +24,21 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
   List<Booking> findAllByBookerIdAndStartDateTimeAfterOrderByStartDateTimeDesc(long userId, LocalDateTime localDate);
 
   List<Booking> findAllByBookerIdAndStatusOrderByStartDateTimeDesc(long bookerId, BookingStatus status);
+
+  List<Booking> findAllByItemIdInOrderByStartDateTimeDesc(List<Long> ids);
+
+  @Query(value = "SELECT * "
+      + "FROM bookings "
+      + "WHERE start_date < ?2 "
+      + "AND end_date > ?2 "
+      + "AND item_id IN (?1) "
+      + "ORDER BY start_date DESC", nativeQuery = true)
+  List<Booking> findAllCurrentBookingsByItemsIds(List<Long> ids, LocalDateTime localDate);
+
+  List<Booking> findAllByItemIdInAndStartDateTimeBeforeOrderByStartDateTimeDesc(List<Long> ids,
+      LocalDateTime localDate);
+
+  List<Booking> findAllByItemIdInAndStartDateTimeAfterOrderByStartDateTimeDesc(List<Long> ids, LocalDateTime localDate);
+
+  List<Booking> findAllByItemIdInAndStatusOrderByStartDateTimeDesc(List<Long> ids, BookingStatus status);
 }
