@@ -16,43 +16,43 @@ public class CommonExceptionHandler {
 
   @ExceptionHandler
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public String handleItemFieldsException(final IncorrectItemFieldException e) {
-    return e.getMessage();
+  public ErrorResponse handleItemFieldsException(final IncorrectItemFieldException e) {
+    return new ErrorResponse(e.getMessage());
   }
 
   @ExceptionHandler
   @ResponseStatus(HttpStatus.FORBIDDEN)
-  public String handleNoPermitsException(final NoPermitsException e) {
-    return e.getMessage();
+  public ErrorResponse handleNoPermitsException(final NoPermitsException e) {
+    return new ErrorResponse(e.getMessage());
   }
 
   @ExceptionHandler
   @ResponseStatus(HttpStatus.CONFLICT)
-  public String handleDuplicateEmailException(final DuplicateEmailException e) {
-    return e.getMessage();
+  public ErrorResponse handleDuplicateEmailException(final DuplicateEmailException e) {
+    return new ErrorResponse(e.getMessage());
   }
 
   @ExceptionHandler
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public String handleBlankEmailException(final BlankEmailException e) {
-    return e.getMessage();
+  public ErrorResponse handleBlankEmailException(final BlankEmailException e) {
+    return new ErrorResponse(e.getMessage());
   }
 
   @ExceptionHandler
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public String handleUserDoesNotExistsException(final UserDoesNotExistsException e) {
-    return e.getMessage();
+  public ErrorResponse handleUserDoesNotExistsException(final UserDoesNotExistsException e) {
+    return new ErrorResponse(e.getMessage());
   }
 
   @ExceptionHandler
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public String handleNoSuchElementException(final NoSuchElementException e) {
-    return e.getMessage();
+  public ErrorResponse handleNoSuchElementException(final NoSuchElementException e) {
+    return new ErrorResponse(e.getMessage());
   }
 
   @ExceptionHandler
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public String handleIllegalStateException(final IllegalStateException e) {
-    return e.getMessage();
+  public ErrorResponse handleIllegalStateException(final IllegalStateException e) {
+    return new ErrorResponse(e.getMessage());
   }
 }
