@@ -29,7 +29,7 @@ public class BookingServiceImpl implements BookingService {
 
   @Override
   public BookingCreateResponseDto bookItem(long bookerId, BookingCreateRequestDto requestDto) {
-    userRepository.findById(bookerId)
+    var booker = userRepository.findById(bookerId)
         .orElseThrow(() -> new NoSuchElementException("User with id: " + bookerId + " doesn't exists"));
     var item = itemRepository.findById(requestDto.getItemId())
         .orElseThrow(() -> new NoSuchElementException("Item with id: " + requestDto.getItemId() + " doesn't exists"));
@@ -38,6 +38,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     var booking = bookingRepository.save(BookingMapper.toBooking(bookerId, requestDto));
+    booking.setBooker(booker);
+    booking.setItem(item);
     return BookingMapper.toBookingCreateResponseDto(booking);
   }
 
