@@ -37,6 +37,10 @@ public class BookingServiceImpl implements BookingService {
       throw new IllegalStateException("Item with id: " + item.getId() + " is not available");
     }
 
+    if (bookerId == item.getOwnerId()) {
+      throw new NoSuchElementException("User is item owner");
+    }
+
     var booking = bookingRepository.save(BookingMapper.toBooking(bookerId, requestDto));
     booking.setBooker(booker);
     booking.setItem(item);
@@ -50,6 +54,10 @@ public class BookingServiceImpl implements BookingService {
 
     if (userId != booking.getItem().getOwnerId()) {
       throw new NoSuchElementException("User with id " + userId + " not item owner");
+    }
+
+    if (booking.getStatus() == BookingStatus.APPROVED) {
+      throw new IllegalStateException("Booking status already APPROVED");
     }
 
     booking.setStatus(isApproved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
