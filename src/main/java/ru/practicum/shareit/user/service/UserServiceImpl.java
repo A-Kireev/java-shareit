@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -8,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
-import ru.practicum.shareit.user.exception.BlankEmailException;
-import ru.practicum.shareit.user.exception.UserDoesNotExistsException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -43,7 +42,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDto getUser(long userId) {
     return storage.findById(userId).map(UserMapper::toUserDto)
-        .orElseThrow(() -> new UserDoesNotExistsException("User with id: " + userId + " doesn't exists"));
+        .orElseThrow(() -> new NoSuchElementException("User with id: " + userId + " doesn't exists"));
   }
 
   @Override
@@ -60,7 +59,7 @@ public class UserServiceImpl implements UserService {
 
   private void checkEmailPresents(UserDto userDto) {
     if (StringUtils.isBlank(userDto.getEmail())) {
-      throw new BlankEmailException("Адрес электронной почты должен быть заполнен");
+      throw new IllegalStateException("Адрес электронной почты должен быть заполнен");
     }
   }
 }
