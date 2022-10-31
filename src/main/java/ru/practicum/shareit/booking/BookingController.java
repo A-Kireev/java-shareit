@@ -48,4 +48,10 @@ public class BookingController {
       @RequestParam(required = false, defaultValue = "ALL") BookingFilter state) {
     return bookingService.getAllBookingInfo(userId, state);
   }
+
+  @GetMapping("/owner")
+  public List<BookingCreateResponseDto> getAllOwnerBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId,
+      @RequestParam(required = false, defaultValue = "ALL") BookingFilter state) {
+    return bookingService.getAllBookingInfo(userId, state);
+  }
 }
