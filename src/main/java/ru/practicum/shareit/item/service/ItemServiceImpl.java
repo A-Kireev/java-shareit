@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -8,8 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.ItemWithBookingInfoDto;
 import ru.practicum.shareit.item.exception.NoPermitsException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -21,6 +25,7 @@ public class ItemServiceImpl implements ItemService {
 
   private final ItemRepository storage;
   private final UserRepository userRepository;
+  private final BookingRepository bookingRepository;
 
   @Override
   public ItemDto createItem(long userId, ItemDto itemDto) {
@@ -54,14 +59,33 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public ItemDto getItem(long userId, Long itemId) {
-    return ItemMapper.toItemDto(storage.findById(itemId).orElseThrow(NoSuchElementException::new));
+  public ItemWithBookingInfoDto getItem(long userId, Long itemId) {
+    var item = storage.findById(itemId).orElseThrow(NoSuchElementException::new);
+    var lastBooking = bookingRepository.findByItemIdAndEndDateTimeBeforeOrderByEndDateTimeDesc(itemId,
+        LocalDateTime.now());
+    var nextBooking = bookingRepository.findByItemIdAndStartDateTimeAfterOrderByEndDateTimeAsc(itemId,
+        LocalDateTime.now());
+    var lastBookingInfo = lastBooking != null ? BookingMapper.toBookingShortInfo(lastBooking) : null;
+    var nextBookingInfo = nextBooking != null ? BookingMapper.toBookingShortInfo(nextBooking) : null;
+
+    return userId == item.getOwnerId()
+        ? ItemMapper.toItemDto(item, lastBookingInfo, nextBookingInfo)
+        : ItemMapper.toItemDto(item, null, null);
   }
 
   @Override
-  public List<ItemDto> getItems(Long ownerId) {
-    return storage.findAllByOwnerId(ownerId).stream()
-        .map(ItemMapper::toItemDto)
+  public List<ItemWithBookingInfoDto> getItems(Long ownerId) {
+    return storage.findAllByOwnerId(ownerId)
+        .stream()
+        .map(s -> {
+          var lastBooking = bookingRepository.findByItemIdAndEndDateTimeBeforeOrderByEndDateTimeDesc(s.getId(),
+              LocalDateTime.now());
+          var nextBooking = bookingRepository.findByItemIdAndStartDateTimeAfterOrderByEndDateTimeAsc(s.getId(),
+              LocalDateTime.now());
+          var lastBookingInfo = lastBooking != null ? BookingMapper.toBookingShortInfo(lastBooking) : null;
+          var nextBookingInfo = nextBooking != null ? BookingMapper.toBookingShortInfo(nextBooking) : null;
+          return ItemMapper.toItemDto(s, lastBookingInfo, nextBookingInfo);
+        })
         .collect(Collectors.toList());
   }
 

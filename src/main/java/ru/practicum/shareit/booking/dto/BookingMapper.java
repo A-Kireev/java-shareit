@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.dto;
 
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingShortInfo;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -29,6 +30,15 @@ public class BookingMapper {
         .startDateTime(booking.getStartDateTime())
         .endDateTime(booking.getEndDateTime())
         .status(booking.getStatus())
+        .build();
+  }
+
+  public static BookingShortInfo toBookingShortInfo(Booking booking) {
+    return BookingShortInfo.builder()
+        .id(booking.getId())
+        .bookerId(booking.getBooker().getId())
+        .startDateTime(booking.getStartDateTime())
+        .endDateTime(booking.getEndDateTime())
         .build();
   }
 }
