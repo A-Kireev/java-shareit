@@ -90,7 +90,7 @@ public class BookingServiceImpl implements BookingService {
         bookings = bookingRepository.findAllCurrentBookingsByBookerId(userId, LocalDateTime.now());
         break;
       case PAST:
-        bookings = bookingRepository.findAllByBookerIdAndStartDateTimeBeforeOrderByStartDateTimeDesc(userId,
+        bookings = bookingRepository.findAllByBookerIdAndEndDateTimeBeforeOrderByStartDateTimeDesc(userId,
             LocalDateTime.now());
         break;
       case FUTURE:
@@ -129,7 +129,7 @@ public class BookingServiceImpl implements BookingService {
         bookings = bookingRepository.findAllCurrentBookingsByItemsIds(userItems, LocalDateTime.now());
         break;
       case PAST:
-        bookings = bookingRepository.findAllByItemIdInAndStartDateTimeBeforeOrderByStartDateTimeDesc(userItems,
+        bookings = bookingRepository.findAllByItemIdInAndEndDateTimeBeforeOrderByStartDateTimeDesc(userItems,
             LocalDateTime.now());
         break;
       case FUTURE:

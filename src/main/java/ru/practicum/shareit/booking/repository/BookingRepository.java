@@ -11,13 +11,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
   List<Booking> findAllByBookerIdOrderByStartDateTimeDesc(long userId);
 
-  List<Booking> findAllByBookerIdAndStartDateTimeBeforeOrderByStartDateTimeDesc(long userId,
+  List<Booking> findAllByBookerIdAndEndDateTimeBeforeOrderByStartDateTimeDesc(long userId,
       LocalDateTime localDate);
 
   @Query(value = "SELECT * "
       + "FROM bookings "
-      + "WHERE start_date < ?1 "
-      + "AND end_date > ?1 "
+      + "WHERE start_date < ?2 "
+      + "AND end_date > ?2 "
+      + "AND booker_id = ?1 "
       + "ORDER BY start_date DESC", nativeQuery = true)
   List<Booking> findAllCurrentBookingsByBookerId(long userId, LocalDateTime localDate);
 
@@ -35,7 +36,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
       + "ORDER BY start_date DESC", nativeQuery = true)
   List<Booking> findAllCurrentBookingsByItemsIds(List<Long> ids, LocalDateTime localDate);
 
-  List<Booking> findAllByItemIdInAndStartDateTimeBeforeOrderByStartDateTimeDesc(List<Long> ids,
+  List<Booking> findAllByItemIdInAndEndDateTimeBeforeOrderByStartDateTimeDesc(List<Long> ids,
       LocalDateTime localDate);
 
   List<Booking> findAllByItemIdInAndStartDateTimeAfterOrderByStartDateTimeDesc(List<Long> ids, LocalDateTime localDate);
@@ -45,4 +46,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
   Booking findByItemIdAndEndDateTimeBeforeOrderByEndDateTimeDesc(long itemId, LocalDateTime localDate);
 
   Booking findByItemIdAndStartDateTimeAfterOrderByEndDateTimeAsc(long itemId, LocalDateTime localDate);
+
+  boolean existsByBookerIdAndItemIdAndEndDateTimeBefore(long bookerId, long itemId, LocalDateTime dateTime);
 }

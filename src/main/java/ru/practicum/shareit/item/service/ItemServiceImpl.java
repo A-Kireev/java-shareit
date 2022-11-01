@@ -118,6 +118,11 @@ public class ItemServiceImpl implements ItemService {
   @Override
   public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
     var user = userRepository.findById(userId).orElseThrow();
+
+    if (!bookingRepository.existsByBookerIdAndItemIdAndEndDateTimeBefore(userId, itemId, LocalDateTime.now())) {
+      throw new IllegalStateException("Current user didn't book this item");
+    }
+
     var comment = commentRepository.save(CommentMapper.toComment(commentDto, userId, itemId));
     comment.setAuthor(user);
 
