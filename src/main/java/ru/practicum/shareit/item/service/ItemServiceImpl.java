@@ -43,7 +43,8 @@ public class ItemServiceImpl implements ItemService {
 
   @Override
   public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
-    var itemPreviousVersion = storage.findById(itemId).orElseThrow();
+    var itemPreviousVersion = storage.findById(itemId)
+        .orElseThrow(() -> new NoSuchElementException("Previous version of item not found"));
 
     if (itemPreviousVersion.getOwnerId() != userId) {
       throw new NoPermitsException("Пользователь с id: " + userId + " не имеет прав на редактирование данной вещи");

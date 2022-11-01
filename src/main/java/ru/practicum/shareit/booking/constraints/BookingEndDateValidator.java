@@ -12,6 +12,7 @@ public class BookingEndDateValidator implements ConstraintValidator<EndDateValid
   @Override
   public boolean isValid(BookingCreateRequestDto createRequestDto,
       ConstraintValidatorContext constraintValidatorContext) {
-    return createRequestDto.getEndDateTime().isAfter(createRequestDto.getStartDateTime());
+    return createRequestDto.getEndDateTime() != null && createRequestDto.getStartDateTime() != null
+        && createRequestDto.getEndDateTime().isAfter(createRequestDto.getStartDateTime());
   }
 }

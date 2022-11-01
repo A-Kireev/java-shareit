@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 public class FilterValueConverter implements Converter<String, BookingFilter> {
 
   @Override
-  public BookingFilter convert(String s) {
+  public BookingFilter convert(String inputFilterValue) {
     try {
-      return BookingFilter.valueOf(s.toUpperCase());
+      return BookingFilter.valueOf(inputFilterValue.toUpperCase());
     } catch (IllegalArgumentException e) {
-      throw new IllegalStateException("Unknown state: " + s);
+      throw new IllegalStateException("Unknown state: " + inputFilterValue);
     }
   }
 }
