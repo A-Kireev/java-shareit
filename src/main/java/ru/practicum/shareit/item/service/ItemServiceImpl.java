@@ -69,12 +69,15 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime.now());
     var nextBooking = bookingRepository.findByItemIdAndStartDateTimeAfterOrderByEndDateTimeAsc(itemId,
         LocalDateTime.now());
+    var comments = commentRepository.findAllByItemId(itemId).stream()
+        .map(CommentMapper::toCommentDto)
+        .collect(Collectors.toList());
     var lastBookingInfo = lastBooking != null ? BookingMapper.toBookingShortInfo(lastBooking) : null;
     var nextBookingInfo = nextBooking != null ? BookingMapper.toBookingShortInfo(nextBooking) : null;
 
     return userId == item.getOwnerId()
-        ? ItemMapper.toItemDto(item, lastBookingInfo, nextBookingInfo)
-        : ItemMapper.toItemDto(item, null, null);
+        ? ItemMapper.toItemDto(item, lastBookingInfo, nextBookingInfo, comments)
+        : ItemMapper.toItemDto(item, null, null, comments);
   }
 
   @Override
@@ -88,7 +91,7 @@ public class ItemServiceImpl implements ItemService {
               LocalDateTime.now());
           var lastBookingInfo = lastBooking != null ? BookingMapper.toBookingShortInfo(lastBooking) : null;
           var nextBookingInfo = nextBooking != null ? BookingMapper.toBookingShortInfo(nextBooking) : null;
-          return ItemMapper.toItemDto(s, lastBookingInfo, nextBookingInfo);
+          return ItemMapper.toItemDto(s, lastBookingInfo, nextBookingInfo, null);
         })
         .collect(Collectors.toList());
   }
