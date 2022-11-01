@@ -72,12 +72,16 @@ public class ItemServiceImpl implements ItemService {
     var comments = commentRepository.findAllByItemId(itemId).stream()
         .map(CommentMapper::toCommentDto)
         .collect(Collectors.toList());
-    var lastBookingInfo = lastBooking != null ? BookingMapper.toBookingShortInfo(lastBooking) : null;
-    var nextBookingInfo = nextBooking != null ? BookingMapper.toBookingShortInfo(nextBooking) : null;
 
-    return userId == item.getOwnerId()
-        ? ItemMapper.toItemDto(item, lastBookingInfo, nextBookingInfo, comments)
-        : ItemMapper.toItemDto(item, null, null, comments);
+    var itemWithBookingInfoDto = ItemMapper.toItemDtoWithBookingInfoDto(item);
+    itemWithBookingInfoDto.setComments(comments);
+
+    if (userId == item.getOwnerId()) {
+      itemWithBookingInfoDto.setLastBooking(BookingMapper.toBookingShortInfo(lastBooking));
+      itemWithBookingInfoDto.setNextBooking(BookingMapper.toBookingShortInfo(nextBooking));
+    }
+
+    return itemWithBookingInfoDto;
   }
 
   @Override
@@ -89,9 +93,12 @@ public class ItemServiceImpl implements ItemService {
               LocalDateTime.now());
           var nextBooking = bookingRepository.findByItemIdAndStartDateTimeAfterOrderByEndDateTimeAsc(s.getId(),
               LocalDateTime.now());
-          var lastBookingInfo = lastBooking != null ? BookingMapper.toBookingShortInfo(lastBooking) : null;
-          var nextBookingInfo = nextBooking != null ? BookingMapper.toBookingShortInfo(nextBooking) : null;
-          return ItemMapper.toItemDto(s, lastBookingInfo, nextBookingInfo, null);
+
+          var itemWithBookingInfoDto = ItemMapper.toItemDtoWithBookingInfoDto(s);
+          itemWithBookingInfoDto.setLastBooking(BookingMapper.toBookingShortInfo(lastBooking));
+          itemWithBookingInfoDto.setNextBooking(BookingMapper.toBookingShortInfo(nextBooking));
+
+          return itemWithBookingInfoDto;
         })
         .collect(Collectors.toList());
   }

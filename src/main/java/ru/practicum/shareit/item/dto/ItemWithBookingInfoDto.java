@@ -24,4 +24,11 @@ public class ItemWithBookingInfoDto {
   private BookingShortInfo lastBooking;
   private BookingShortInfo nextBooking;
   private List<CommentDto> comments;
+
+  public ItemWithBookingInfoDto(Long id, String name, String description, Boolean isAvailable) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.isAvailable = isAvailable;
+  }
 }
