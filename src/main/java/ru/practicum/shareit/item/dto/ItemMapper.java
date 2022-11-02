@@ -21,7 +21,16 @@ public class ItemMapper {
         itemDto.getDescription(),
         itemDto.getIsAvailable(),
         userId,
-        request
+        null
+    );
+  }
+
+  public static ItemWithBookingInfoDto toItemDtoWithBookingInfoDto(Item item) {
+    return new ItemWithBookingInfoDto(
+        item.getId(),
+        item.getName(),
+        item.getDescription(),
+        item.getIsAvailable()
     );
   }
 }
