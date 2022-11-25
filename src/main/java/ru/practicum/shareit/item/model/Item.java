@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,8 +27,7 @@ public class Item {
   private String description;
   private Boolean isAvailable;
   private Long ownerId;
-  @Column(name = "request_id")
-  private String request;
+  private Long requestId;
 
   public Item(long itemId) {
     this.id = itemId;

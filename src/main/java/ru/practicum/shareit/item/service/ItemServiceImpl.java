@@ -37,7 +37,7 @@ public class ItemServiceImpl implements ItemService {
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
     checkFieldsFilled(itemDto);
 
-    var item = storage.save(ItemMapper.toItem(itemDto, userId, null));
+    var item = storage.save(ItemMapper.toItem(itemDto, userId));
     return ItemMapper.toItemDto(item);
   }
 
@@ -56,7 +56,7 @@ public class ItemServiceImpl implements ItemService {
         .description(itemDto.getDescription() != null ? itemDto.getDescription() : itemPreviousVersion.getDescription())
         .isAvailable(itemDto.getIsAvailable() != null ? itemDto.getIsAvailable() : itemPreviousVersion.getIsAvailable())
         .ownerId(itemPreviousVersion.getOwnerId())
-        .request(itemPreviousVersion.getRequest())
+        .requestId(itemPreviousVersion.getRequestId())
         .build();
 
     var item = storage.save(updatedItem);
@@ -112,6 +112,13 @@ public class ItemServiceImpl implements ItemService {
 
     return storage.findAllByNameOrDescription(searchCriteria)
         .stream()
+        .map(ItemMapper::toItemDto)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<ItemDto> findItemByRequestId(long requestId) {
+    return storage.findAllByRequestId(requestId).stream()
         .map(ItemMapper::toItemDto)
         .collect(Collectors.toList());
   }
