@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -42,13 +43,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
   }
 
   @Override
-  public List<ItemRequestDto> getItemRequests(long userId, Integer indexFrom, Integer quantity) {
+  public List<ItemRequestDto> getItemRequests(long userId, Integer from, Integer size) {
     userService.getUser(userId);
-    var userRequests = indexFrom != null && quantity != null
-        ? requestRepository.findAllByRequesterIdNot(userId, Pageable.ofSize(quantity)
-        .withPage(indexFrom)
-        .getSortOr(Sort.by("createDateTime").descending()))
-        : requestRepository.findAllByRequesterIdNot(userId, Sort.by("createDateTime").descending());
+    Sort sort = Sort.by("createDateTime").descending();
+    Pageable pageable = from != null && size != null
+        ? PageRequest.of(from, size, sort)
+        : PageRequest.of(0, Integer.MAX_VALUE, sort);
+
+    var userRequests = requestRepository.findAllByRequesterIdNot(userId, pageable);
 
     var userRequestsDto = userRequests.stream()
         .map(ItemRequestMapper::toItemRequestDto)
