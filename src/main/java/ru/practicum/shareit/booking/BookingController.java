@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import java.util.List;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -45,13 +46,17 @@ public class BookingController {
 
   @GetMapping
   public List<BookingCreateResponseDto> getAllBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId,
-      @RequestParam(required = false, defaultValue = "ALL") BookingFilter state) {
-    return bookingService.getAllBookingInfo(userId, state);
+      @RequestParam(required = false, defaultValue = "ALL") BookingFilter state,
+      @RequestParam(value = "from", required = false) @Positive Integer from,
+      @RequestParam(value = "size", required = false) @Positive Integer size) {
+    return bookingService.getAllBookingInfo(userId, state, from, size);
   }
 
   @GetMapping("/owner")
   public List<BookingCreateResponseDto> getAllOwnerBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId,
-      @RequestParam(required = false, defaultValue = "ALL") BookingFilter state) {
-    return bookingService.getAllOwnerBookingInfo(userId, state);
+      @RequestParam(required = false, defaultValue = "ALL") BookingFilter state,
+      @RequestParam(value = "from", required = false) @Positive Integer from,
+      @RequestParam(value = "size", required = false) @Positive Integer size) {
+    return bookingService.getAllOwnerBookingInfo(userId, state, from, size);
   }
 }
