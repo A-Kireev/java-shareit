@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -86,8 +88,12 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public List<ItemWithBookingInfoDto> getItems(Long ownerId) {
-    return storage.findAllByOwnerId(ownerId)
+  public List<ItemWithBookingInfoDto> getItems(Long ownerId, Integer from, Integer size) {
+    Pageable pageable = from != null && size != null
+        ? PageRequest.of(from, size)
+        : PageRequest.of(0, Integer.MAX_VALUE);
+
+    return storage.findAllByOwnerId(ownerId, pageable)
         .stream()
         .map(s -> {
           var lastBooking = bookingRepository.findByItemIdAndEndDateTimeBeforeOrderByEndDateTimeDesc(s.getId(),
@@ -105,12 +111,16 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public List<ItemDto> searchItem(String searchCriteria) {
+  public List<ItemDto> searchItem(String searchCriteria, Integer from, Integer size) {
     if (StringUtils.isBlank(searchCriteria)) {
       return Collections.emptyList();
     }
 
-    return storage.findAllByNameOrDescription(searchCriteria)
+    Pageable pageable = from != null && size != null
+        ? PageRequest.of(from, size)
+        : PageRequest.of(0, Integer.MAX_VALUE);
+
+    return storage.findAllByNameOrDescription(searchCriteria, pageable)
         .stream()
         .map(ItemMapper::toItemDto)
         .collect(Collectors.toList());

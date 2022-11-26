@@ -121,7 +121,7 @@ public class BookingServiceImpl implements BookingService {
   public List<BookingCreateResponseDto> getAllOwnerBookingInfo(long userId, BookingFilter state, Integer from,
       Integer size) {
     userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
-    var userItems = itemRepository.findAllByOwnerId(userId).stream()
+    var userItems = itemRepository.findAllByOwnerId(userId, Pageable.unpaged()).stream()
         .map(Item::getId)
         .collect(Collectors.toList());
 
