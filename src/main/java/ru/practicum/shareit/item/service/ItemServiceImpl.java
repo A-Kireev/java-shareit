@@ -90,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
   @Override
   public List<ItemWithBookingInfoDto> getItems(Long ownerId, Integer from, Integer size) {
     Pageable pageable = from != null && size != null
-        ? PageRequest.of(from, size)
+        ? PageRequest.of(from / size, size)
         : PageRequest.of(0, Integer.MAX_VALUE);
 
     return storage.findAllByOwnerId(ownerId, pageable)
@@ -117,7 +117,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     Pageable pageable = from != null && size != null
-        ? PageRequest.of(from, size)
+        ? PageRequest.of(from / size, size)
         : PageRequest.of(0, Integer.MAX_VALUE);
 
     return storage.findAllByNameOrDescription(searchCriteria, pageable)

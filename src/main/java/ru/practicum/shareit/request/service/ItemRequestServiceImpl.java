@@ -47,7 +47,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     userService.getUser(userId);
     Sort sort = Sort.by("createDateTime").descending();
     Pageable pageable = from != null && size != null
-        ? PageRequest.of(from, size, sort)
+        ? PageRequest.of(from / size, size, sort)
         : PageRequest.of(0, Integer.MAX_VALUE, sort);
 
     var userRequests = requestRepository.findAllByRequesterIdNot(userId, pageable);

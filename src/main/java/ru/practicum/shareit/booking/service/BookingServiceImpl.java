@@ -88,7 +88,7 @@ public class BookingServiceImpl implements BookingService {
 
     Sort sort = Sort.by("endDateTime").descending();
     Pageable pageable = from != null && size != null
-        ? PageRequest.of(from, size, sort)
+        ? PageRequest.of(from / size, size, sort)
         : PageRequest.of(0, Integer.MAX_VALUE, sort);
 
     switch (state) {
@@ -129,7 +129,7 @@ public class BookingServiceImpl implements BookingService {
 
     Sort sort = Sort.by("endDateTime").descending();
     Pageable pageable = from != null && size != null
-        ? PageRequest.of(from, size, sort)
+        ? PageRequest.of(from / size, size, sort)
         : PageRequest.of(0, Integer.MAX_VALUE, sort);
 
     switch (state) {
