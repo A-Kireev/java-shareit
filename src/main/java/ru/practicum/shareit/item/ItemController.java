@@ -3,7 +3,6 @@ package ru.practicum.shareit.item;
 import java.util.List;
 import java.util.Locale;
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
