@@ -53,4 +53,34 @@ class BookingTest {
         softAssertions.assertThat(targetBookings.size())
             .isEqualTo(sourceBookings.size()));
   }
+
+  @Test
+  void getAllOwnerBookingInfoTest() {
+    var user = new User(null, "authorName", "mail@mail.com");
+    em.persist(user);
+    var item = Item.builder()
+        .name("itemName")
+        .ownerId(user.getId())
+        .description("itemDescription")
+        .isAvailable(true)
+        .build();
+    var sourceBookings = List.of(
+        Booking.builder()
+            .item(item)
+            .startDateTime(LocalDateTime.now())
+            .endDateTime(LocalDateTime.now())
+            .build()
+    );
+
+    em.persist(item);
+    for (var booking : sourceBookings) {
+      em.persist(booking);
+    }
+    em.flush();
+
+    var targetBookings = bookingService.getAllOwnerBookingInfo(user.getId(), BookingFilter.ALL, null, null);
+    assertSoftly(softAssertions ->
+        softAssertions.assertThat(targetBookings.size())
+            .isEqualTo(sourceBookings.size()));
+  }
 }
