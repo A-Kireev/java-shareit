@@ -56,6 +56,35 @@ class ItemTests {
   }
 
   @Test
+  void getItemsPageTest() {
+    var user = new User(null, "authorName", "mail@mail.com");
+    var sourceItems = List.of(
+        ItemDto.builder()
+            .name("itemName")
+            .description("itemDescription")
+            .isAvailable(true)
+            .build(),
+        ItemDto.builder()
+            .name("secondItemName")
+            .description("secondItemDescription")
+            .isAvailable(true)
+            .build()
+    );
+
+    em.persist(user);
+    for (var item : sourceItems) {
+      var entity = ItemMapper.toItem(item, user.getId());
+      em.persist(entity);
+    }
+    em.flush();
+
+    var targetItems = itemService.getItems(user.getId(), 0, 2);
+    assertSoftly(softAssertions ->
+        softAssertions.assertThat(targetItems.size())
+            .isEqualTo(sourceItems.size()));
+  }
+
+  @Test
   void getItemTest() {
     var user = new User(null, "authorName", "mail@mail.com");
     em.persist(user);
@@ -101,6 +130,35 @@ class ItemTests {
     em.flush();
 
     var targetItems = itemService.searchItem("itemName", null, null);
+    assertSoftly(softAssertions ->
+        softAssertions.assertThat(targetItems.size())
+            .isEqualTo(sourceItems.size()));
+  }
+
+  @Test
+  void searchItemsPageTest() {
+    var user = new User(null, "authorName", "mail@mail.com");
+    var sourceItems = List.of(
+        ItemDto.builder()
+            .name("itemName")
+            .description("itemDescription")
+            .isAvailable(true)
+            .build(),
+        ItemDto.builder()
+            .name("secondItemName")
+            .description("secondItemDescription")
+            .isAvailable(true)
+            .build()
+    );
+
+    em.persist(user);
+    for (var item : sourceItems) {
+      var entity = ItemMapper.toItem(item, user.getId());
+      em.persist(entity);
+    }
+    em.flush();
+
+    var targetItems = itemService.searchItem("itemName", 0, 2);
     assertSoftly(softAssertions ->
         softAssertions.assertThat(targetItems.size())
             .isEqualTo(sourceItems.size()));
@@ -153,6 +211,37 @@ class ItemTests {
 
     assertSoftly(softAssertions ->
         softAssertions.assertThat(ItemMapper.toItemDto(item))
+            .usingRecursiveComparison()
+            .ignoringFields("id")
+            .isEqualTo(itemDto));
+  }
+
+  @Test
+  void updateItemTest() {
+    var user = new User(null, "authorName", "mail@mail.com");
+    em.persist(user);
+
+    var item = Item.builder()
+        .name("itemName")
+        .description("itemDescription")
+        .isAvailable(true)
+        .ownerId(user.getId())
+        .build();
+    em.persist(item);
+
+    var itemDto = ItemDto.builder()
+        .id(item.getId())
+        .name("itemNewName")
+        .description("itemNewDescription")
+        .isAvailable(false)
+        .build();
+    itemService.updateItem(user.getId(), item.getId(), itemDto);
+
+    TypedQuery<Item> query = em.createQuery("Select i from items i where i.name = :name", Item.class);
+    var updateItem = query.setParameter("name", itemDto.getName()).getSingleResult();
+
+    assertSoftly(softAssertions ->
+        softAssertions.assertThat(ItemMapper.toItemDto(updateItem))
             .usingRecursiveComparison()
             .ignoringFields("id")
             .isEqualTo(itemDto));
