@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 
@@ -137,26 +138,21 @@ class ItemRequestsTests {
   void getItemRequestTest() {
     var user = new User(null, "authorName", "mail@mail.com");
     var notOwnerUser = new User(null, "notOwnerName", "mail1@mail.com");
-    var sourceItemRequests = List.of(
-        ItemRequestDto.builder()
-            .description("itemRequestDescription")
-            .created(LocalDateTime.now())
-            .build()
-    );
+    var sourceItemRequest = ItemRequest.builder()
+        .description("itemRequestDescription")
+        .createDateTime(LocalDateTime.now())
+        .build();
 
     em.persist(user);
     em.persist(notOwnerUser);
-    for (var item : sourceItemRequests) {
-      var entity = ItemRequestMapper.toItemRequest(user.getId(), item);
-      em.persist(entity);
-    }
+    em.persist(sourceItemRequest);
     em.flush();
 
-    var targetItemRequests = itemRequestService.getItemRequest(user.getId(), 1L);
+    var targetItemRequests = itemRequestService.getItemRequest(user.getId(), sourceItemRequest.getId());
     assertSoftly(softAssertions ->
         softAssertions.assertThat(targetItemRequests)
             .usingRecursiveComparison()
             .ignoringFields("id", "items")
-            .isEqualTo(sourceItemRequests.get(0)));
+            .isEqualTo(ItemRequestMapper.toItemRequestDto(sourceItemRequest)));
   }
 }
