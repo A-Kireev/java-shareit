@@ -180,6 +180,68 @@ class BookingTest {
   }
 
   @Test
+  void getAllBookingInfoCurrentTest() {
+    var user = new User(null, "authorName", "mail@mail.com");
+    var item = Item.builder()
+        .name("itemName")
+        .description("itemDescription")
+        .isAvailable(true)
+        .build();
+    var sourceBookings = List.of(
+        Booking.builder()
+            .item(item)
+            .booker(user)
+            .startDateTime(LocalDateTime.now().minusDays(1))
+            .endDateTime(LocalDateTime.now().plusDays(4))
+            .status(BookingStatus.WAITING)
+            .build()
+    );
+
+    em.persist(user);
+    em.persist(item);
+    for (var booking : sourceBookings) {
+      em.persist(booking);
+    }
+    em.flush();
+
+    var targetBookings = bookingService.getAllBookingInfo(user.getId(), BookingFilter.CURRENT, null, null);
+    assertSoftly(softAssertions ->
+        softAssertions.assertThat(targetBookings.size())
+            .isEqualTo(sourceBookings.size()));
+  }
+
+  @Test
+  void getAllBookingInfoCurrentPageTest() {
+    var user = new User(null, "authorName", "mail@mail.com");
+    var item = Item.builder()
+        .name("itemName")
+        .description("itemDescription")
+        .isAvailable(true)
+        .build();
+    var sourceBookings = List.of(
+        Booking.builder()
+            .item(item)
+            .booker(user)
+            .startDateTime(LocalDateTime.now().minusDays(1))
+            .endDateTime(LocalDateTime.now().plusDays(4))
+            .status(BookingStatus.WAITING)
+            .build()
+    );
+
+    em.persist(user);
+    em.persist(item);
+    for (var booking : sourceBookings) {
+      em.persist(booking);
+    }
+    em.flush();
+
+    var targetBookings = bookingService.getAllBookingInfo(user.getId(), BookingFilter.CURRENT, 0, 2);
+    assertSoftly(softAssertions ->
+        softAssertions.assertThat(targetBookings.size())
+            .isEqualTo(sourceBookings.size()));
+  }
+
+  @Test
   void getAllOwnerBookingInfoTest() {
     var user = new User(null, "authorName", "mail@mail.com");
     em.persist(user);
@@ -326,6 +388,68 @@ class BookingTest {
     em.flush();
 
     var targetBookings = bookingService.getAllOwnerBookingInfo(user.getId(), BookingFilter.REJECTED, null, null);
+    assertSoftly(softAssertions ->
+        softAssertions.assertThat(targetBookings.size())
+            .isEqualTo(sourceBookings.size()));
+  }
+
+  @Test
+  void getAllOwnerBookingInfoCurrentTest() {
+    var user = new User(null, "authorName", "mail@mail.com");
+    em.persist(user);
+    var item = Item.builder()
+        .name("itemName")
+        .ownerId(user.getId())
+        .description("itemDescription")
+        .isAvailable(true)
+        .build();
+    var sourceBookings = List.of(
+        Booking.builder()
+            .item(item)
+            .startDateTime(LocalDateTime.now().minusDays(1))
+            .endDateTime(LocalDateTime.now().plusDays(1))
+            .status(BookingStatus.REJECTED)
+            .build()
+    );
+
+    em.persist(item);
+    for (var booking : sourceBookings) {
+      em.persist(booking);
+    }
+    em.flush();
+
+    var targetBookings = bookingService.getAllOwnerBookingInfo(user.getId(), BookingFilter.CURRENT, null, null);
+    assertSoftly(softAssertions ->
+        softAssertions.assertThat(targetBookings.size())
+            .isEqualTo(sourceBookings.size()));
+  }
+
+  @Test
+  void getAllOwnerBookingInfoCurrentPageTest() {
+    var user = new User(null, "authorName", "mail@mail.com");
+    em.persist(user);
+    var item = Item.builder()
+        .name("itemName")
+        .ownerId(user.getId())
+        .description("itemDescription")
+        .isAvailable(true)
+        .build();
+    var sourceBookings = List.of(
+        Booking.builder()
+            .item(item)
+            .startDateTime(LocalDateTime.now().minusDays(1))
+            .endDateTime(LocalDateTime.now().plusDays(1))
+            .status(BookingStatus.REJECTED)
+            .build()
+    );
+
+    em.persist(item);
+    for (var booking : sourceBookings) {
+      em.persist(booking);
+    }
+    em.flush();
+
+    var targetBookings = bookingService.getAllOwnerBookingInfo(user.getId(), BookingFilter.CURRENT, 0, 2);
     assertSoftly(softAssertions ->
         softAssertions.assertThat(targetBookings.size())
             .isEqualTo(sourceBookings.size()));
