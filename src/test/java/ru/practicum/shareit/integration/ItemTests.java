@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -53,6 +54,43 @@ class ItemTests {
     assertSoftly(softAssertions ->
         softAssertions.assertThat(targetItems.size())
             .isEqualTo(sourceItems.size()));
+  }
+
+  @Test
+  void getItemsWithBookingInfoTest() {
+    var user = new User(null, "authorName", "mail@mail.com");
+    em.persist(user);
+    var sourceItem = Item.builder()
+        .name("itemName")
+        .description("itemDescription")
+        .isAvailable(true)
+        .ownerId(user.getId())
+        .build();
+    em.persist(sourceItem);
+
+    var lastBooking = Booking.builder()
+        .booker(user)
+        .item(sourceItem)
+        .startDateTime(LocalDateTime.now().minusDays(10))
+        .endDateTime(LocalDateTime.now().minusDays(5))
+        .build();
+
+    var featureBooking = Booking.builder()
+        .booker(user)
+        .item(sourceItem)
+        .startDateTime(LocalDateTime.now().plusDays(10))
+        .endDateTime(LocalDateTime.now().plusDays(15))
+        .build();
+    em.persist(lastBooking);
+    em.persist(featureBooking);
+    em.flush();
+
+    var targetItems = itemService.getItems(user.getId(), 0, 2);
+    assertSoftly(softAssertions ->
+        softAssertions.assertThat(targetItems.get(0))
+            .usingRecursiveComparison()
+            .ignoringFields("ownerId", "requestId", "lastBooking", "nextBooking", "comments")
+            .isEqualTo(sourceItem));
   }
 
   @Test
