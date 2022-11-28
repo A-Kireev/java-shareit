@@ -34,12 +34,14 @@ public class BookingMapper {
         .build();
   }
 
-  public static BookingShortInfo toBookingShortInfo(@NonNull Booking booking) {
-    return BookingShortInfo.builder()
+  public static BookingShortInfo toBookingShortInfo(Booking booking) {
+    return booking != null
+        ? BookingShortInfo.builder()
         .id(booking.getId())
         .bookerId(booking.getBooker().getId())
         .startDateTime(booking.getStartDateTime())
         .endDateTime(booking.getEndDateTime())
-        .build();
+        .build()
+        : null;
   }
 }
