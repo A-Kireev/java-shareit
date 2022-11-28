@@ -5,6 +5,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +31,17 @@ class UserTests {
             .usingRecursiveComparison()
             .ignoringFields("id")
             .isEqualTo(userDto));
+  }
+
+  @Test
+  void createUserWithoutEmailTest() {
+    var userDto = new UserDto(null, "authorName", "");
+
+    final IllegalStateException exception = Assertions.assertThrows(
+        IllegalStateException.class,
+        () -> userService.createUser(userDto));
+
+    Assertions.assertEquals("Email address is not presented", exception.getMessage());
   }
 
   @Test

@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
 
   private void checkEmailPresents(UserDto userDto) {
     if (StringUtils.isBlank(userDto.getEmail())) {
-      throw new IllegalStateException("Адрес электронной почты должен быть заполнен");
+      throw new IllegalStateException("Email address is not presented");
     }
   }
 }
