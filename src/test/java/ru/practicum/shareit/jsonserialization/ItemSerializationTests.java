@@ -18,7 +18,7 @@ class ItemSerializationTests {
 
   @Autowired
   private JacksonTester<ItemDto> jacksonTester;
-  ItemDto itemDto;
+  private ItemDto itemDto;
 
   @BeforeEach
   void setUp() {

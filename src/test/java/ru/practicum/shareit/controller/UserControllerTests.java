@@ -30,10 +30,10 @@ import ru.practicum.shareit.user.service.UserService;
 class UserControllerTests {
 
   @Autowired
-  ObjectMapper mapper;
+  private ObjectMapper mapper;
 
   @MockBean
-  UserService userService;
+  private UserService userService;
 
   @Autowired
   private MockMvc mvc;

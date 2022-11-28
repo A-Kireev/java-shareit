@@ -20,7 +20,7 @@ class BookingSerializationTests {
 
   @Autowired
   private JacksonTester<BookingCreateRequestDto> jacksonTester;
-  BookingCreateRequestDto bookingDto;
+  private BookingCreateRequestDto bookingDto;
 
   @BeforeEach
   void setUp() {

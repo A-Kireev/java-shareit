@@ -26,10 +26,10 @@ import ru.practicum.shareit.user.service.UserService;
 class ExceptionHandlerTests {
 
   @Autowired
-  ObjectMapper mapper;
+  private ObjectMapper mapper;
 
   @MockBean
-  UserService userService;
+  private UserService userService;
 
   @Autowired
   private MockMvc mvc;
