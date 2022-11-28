@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
+import lombok.NonNull;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingShortInfo;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -8,11 +9,11 @@ import ru.practicum.shareit.user.model.User;
 
 public class BookingMapper {
 
-  public static Booking toBooking(long bookerId, BookingCreateRequestDto requestDto) {
+  public static Booking toBooking(long bookerId, @NonNull BookingCreateRequestDto requestDto) {
     return toBooking(bookerId, requestDto, BookingStatus.WAITING);
   }
 
-  public static Booking toBooking(long bookerId, BookingCreateRequestDto requestDto, BookingStatus status) {
+  public static Booking toBooking(long bookerId, @NonNull BookingCreateRequestDto requestDto, BookingStatus status) {
     return Booking.builder()
         .booker(new User(bookerId))
         .item(new Item(requestDto.getItemId()))
@@ -22,7 +23,7 @@ public class BookingMapper {
         .build();
   }
 
-  public static BookingCreateResponseDto toBookingCreateResponseDto(Booking booking) {
+  public static BookingCreateResponseDto toBookingCreateResponseDto(@NonNull Booking booking) {
     return BookingCreateResponseDto.builder()
         .id(booking.getId())
         .booker(booking.getBooker())
@@ -33,14 +34,12 @@ public class BookingMapper {
         .build();
   }
 
-  public static BookingShortInfo toBookingShortInfo(Booking booking) {
-    return booking == null
-        ? null
-        : BookingShortInfo.builder()
-            .id(booking.getId())
-            .bookerId(booking.getBooker().getId())
-            .startDateTime(booking.getStartDateTime())
-            .endDateTime(booking.getEndDateTime())
-            .build();
+  public static BookingShortInfo toBookingShortInfo(@NonNull Booking booking) {
+    return BookingShortInfo.builder()
+        .id(booking.getId())
+        .bookerId(booking.getBooker().getId())
+        .startDateTime(booking.getStartDateTime())
+        .endDateTime(booking.getEndDateTime())
+        .build();
   }
 }
