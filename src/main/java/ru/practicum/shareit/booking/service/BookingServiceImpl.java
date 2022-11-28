@@ -7,6 +7,9 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingCreateRequestDto;
 import ru.practicum.shareit.booking.dto.BookingCreateResponseDto;
@@ -78,32 +81,34 @@ public class BookingServiceImpl implements BookingService {
   }
 
   @Override
-  public List<BookingCreateResponseDto> getAllBookingInfo(long userId, BookingFilter state) {
+  public List<BookingCreateResponseDto> getAllBookingInfo(long userId, BookingFilter state, Integer from,
+      Integer size) {
     userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
     List<Booking> bookings = new ArrayList<>();
 
+    Sort sort = Sort.by("endDateTime").descending();
+    Pageable pageable = from != null && size != null
+        ? PageRequest.of(from / size, size, sort)
+        : PageRequest.of(0, Integer.MAX_VALUE, sort);
+
     switch (state) {
       case ALL:
-        bookings = bookingRepository.findAllByBookerIdOrderByStartDateTimeDesc(userId);
+        bookings = bookingRepository.findAllByBookerId(userId, pageable);
         break;
       case CURRENT:
-        bookings = bookingRepository.findAllCurrentBookingsByBookerId(userId, LocalDateTime.now());
+        bookings = bookingRepository.findAllCurrentBookingsByBookerId(userId, LocalDateTime.now(), pageable);
         break;
       case PAST:
-        bookings = bookingRepository.findAllByBookerIdAndEndDateTimeBeforeOrderByStartDateTimeDesc(userId,
-            LocalDateTime.now());
+        bookings = bookingRepository.findAllByBookerIdAndEndDateTimeBefore(userId, LocalDateTime.now(), pageable);
         break;
       case FUTURE:
-        bookings = bookingRepository.findAllByBookerIdAndStartDateTimeAfterOrderByStartDateTimeDesc(userId,
-            LocalDateTime.now());
+        bookings = bookingRepository.findAllByBookerIdAndStartDateTimeAfter(userId, LocalDateTime.now(), pageable);
         break;
       case WAITING:
-        bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDateTimeDesc(userId,
-            BookingStatus.WAITING);
+        bookings = bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING, pageable);
         break;
       case REJECTED:
-        bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDateTimeDesc(userId,
-            BookingStatus.REJECTED);
+        bookings = bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED, pageable);
         break;
     }
 
@@ -113,36 +118,38 @@ public class BookingServiceImpl implements BookingService {
   }
 
   @Override
-  public List<BookingCreateResponseDto> getAllOwnerBookingInfo(long userId, BookingFilter state) {
+  public List<BookingCreateResponseDto> getAllOwnerBookingInfo(long userId, BookingFilter state, Integer from,
+      Integer size) {
     userRepository.findById(userId).orElseThrow(NoSuchElementException::new);
-    var userItems = itemRepository.findAllByOwnerId(userId).stream()
+    var userItems = itemRepository.findAllByOwnerId(userId, Pageable.unpaged()).stream()
         .map(Item::getId)
         .collect(Collectors.toList());
 
     List<Booking> bookings = new ArrayList<>();
 
+    Sort sort = Sort.by("endDateTime").descending();
+    Pageable pageable = from != null && size != null
+        ? PageRequest.of(from / size, size, sort)
+        : PageRequest.of(0, Integer.MAX_VALUE, sort);
+
     switch (state) {
       case ALL:
-        bookings = bookingRepository.findAllByItemIdInOrderByStartDateTimeDesc(userItems);
+        bookings = bookingRepository.findAllByItemIdIn(userItems, pageable);
         break;
       case CURRENT:
-        bookings = bookingRepository.findAllCurrentBookingsByItemsIds(userItems, LocalDateTime.now());
+        bookings = bookingRepository.findAllCurrentBookingsByItemsIds(userItems, LocalDateTime.now(), pageable);
         break;
       case PAST:
-        bookings = bookingRepository.findAllByItemIdInAndEndDateTimeBeforeOrderByStartDateTimeDesc(userItems,
-            LocalDateTime.now());
+        bookings = bookingRepository.findAllByItemIdInAndEndDateTimeBefore(userItems, LocalDateTime.now(), pageable);
         break;
       case FUTURE:
-        bookings = bookingRepository.findAllByItemIdInAndStartDateTimeAfterOrderByStartDateTimeDesc(userItems,
-            LocalDateTime.now());
+        bookings = bookingRepository.findAllByItemIdInAndStartDateTimeAfter(userItems, LocalDateTime.now(), pageable);
         break;
       case WAITING:
-        bookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDateTimeDesc(userItems,
-            BookingStatus.WAITING);
+        bookings = bookingRepository.findAllByItemIdInAndStatus(userItems, BookingStatus.WAITING, pageable);
         break;
       case REJECTED:
-        bookings = bookingRepository.findAllByItemIdInAndStatusOrderByStartDateTimeDesc(userItems,
-            BookingStatus.REJECTED);
+        bookings = bookingRepository.findAllByItemIdInAndStatus(userItems, BookingStatus.REJECTED, pageable);
         break;
     }
 

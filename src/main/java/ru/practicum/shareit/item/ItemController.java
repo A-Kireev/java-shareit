@@ -3,8 +3,10 @@ package ru.practicum.shareit.item;
 import java.util.List;
 import java.util.Locale;
 import javax.validation.Valid;
+import javax.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +23,7 @@ import ru.practicum.shareit.item.service.ItemService;
 
 @RestController
 @RequestMapping("/items")
+@Validated
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemController {
 
@@ -44,14 +47,18 @@ public class ItemController {
   }
 
   @GetMapping
-  public List<ItemWithBookingInfoDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
-    return itemService.getItems(userId);
+  public List<ItemWithBookingInfoDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId,
+      @RequestParam(value = "from", required = false) @PositiveOrZero Integer from,
+      @RequestParam(value = "size", required = false) @PositiveOrZero Integer size) {
+    return itemService.getItems(userId, from, size);
   }
 
   @GetMapping("/search")
   public List<ItemDto> searchItems(@RequestHeader("X-Sharer-User-Id") long userId,
-      @RequestParam("text") String searchCriteria) {
-    return itemService.searchItem(searchCriteria.toLowerCase(Locale.ROOT));
+      @RequestParam("text") String searchCriteria,
+      @RequestParam(value = "from", required = false) @PositiveOrZero Integer from,
+      @RequestParam(value = "size", required = false) @PositiveOrZero Integer size) {
+    return itemService.searchItem(searchCriteria.toLowerCase(Locale.ROOT), from, size);
   }
 
   @PostMapping("/{itemId}/comment")

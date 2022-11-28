@@ -1,31 +1,32 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.NonNull;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.model.ItemRequest;
 
 public class ItemMapper {
 
-  public static ItemDto toItemDto(Item item) {
+  public static ItemDto toItemDto(@NonNull Item item) {
     return new ItemDto(
         item.getId(),
         item.getName(),
         item.getDescription(),
-        item.getIsAvailable()
+        item.getIsAvailable(),
+        item.getRequestId()
     );
   }
 
-  public static Item toItem(ItemDto itemDto, long userId, ItemRequest request) {
+  public static Item toItem(@NonNull ItemDto itemDto, long userId) {
     return new Item(
         itemDto.getId(),
         itemDto.getName(),
         itemDto.getDescription(),
         itemDto.getIsAvailable(),
         userId,
-        null
+        itemDto.getRequestId()
     );
   }
 
-  public static ItemWithBookingInfoDto toItemDtoWithBookingInfoDto(Item item) {
+  public static ItemWithBookingInfoDto toItemDtoWithBookingInfoDto(@NonNull Item item) {
     return new ItemWithBookingInfoDto(
         item.getId(),
         item.getName(),

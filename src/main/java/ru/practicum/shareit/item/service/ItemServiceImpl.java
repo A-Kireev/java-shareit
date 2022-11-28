@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -37,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
         .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
     checkFieldsFilled(itemDto);
 
-    var item = storage.save(ItemMapper.toItem(itemDto, userId, null));
+    var item = storage.save(ItemMapper.toItem(itemDto, userId));
     return ItemMapper.toItemDto(item);
   }
 
@@ -56,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
         .description(itemDto.getDescription() != null ? itemDto.getDescription() : itemPreviousVersion.getDescription())
         .isAvailable(itemDto.getIsAvailable() != null ? itemDto.getIsAvailable() : itemPreviousVersion.getIsAvailable())
         .ownerId(itemPreviousVersion.getOwnerId())
-        .request(itemPreviousVersion.getRequest())
+        .requestId(itemPreviousVersion.getRequestId())
         .build();
 
     var item = storage.save(updatedItem);
@@ -86,8 +88,12 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public List<ItemWithBookingInfoDto> getItems(Long ownerId) {
-    return storage.findAllByOwnerId(ownerId)
+  public List<ItemWithBookingInfoDto> getItems(Long ownerId, Integer from, Integer size) {
+    Pageable pageable = from != null && size != null
+        ? PageRequest.of(from / size, size)
+        : PageRequest.of(0, Integer.MAX_VALUE);
+
+    return storage.findAllByOwnerId(ownerId, pageable)
         .stream()
         .map(s -> {
           var lastBooking = bookingRepository.findByItemIdAndEndDateTimeBeforeOrderByEndDateTimeDesc(s.getId(),
@@ -105,13 +111,24 @@ public class ItemServiceImpl implements ItemService {
   }
 
   @Override
-  public List<ItemDto> searchItem(String searchCriteria) {
+  public List<ItemDto> searchItem(String searchCriteria, Integer from, Integer size) {
     if (StringUtils.isBlank(searchCriteria)) {
       return Collections.emptyList();
     }
 
-    return storage.findAllByNameOrDescription(searchCriteria)
+    Pageable pageable = from != null && size != null
+        ? PageRequest.of(from / size, size)
+        : PageRequest.of(0, Integer.MAX_VALUE);
+
+    return storage.findAllByNameOrDescription(searchCriteria, pageable)
         .stream()
+        .map(ItemMapper::toItemDto)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<ItemDto> findItemByRequestId(long requestId) {
+    return storage.findAllByRequestId(requestId).stream()
         .map(ItemMapper::toItemDto)
         .collect(Collectors.toList());
   }
