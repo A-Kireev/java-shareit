@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -89,9 +90,10 @@ public class ItemServiceImpl implements ItemService {
 
   @Override
   public List<ItemWithBookingInfoDto> getItems(Long ownerId, Integer from, Integer size) {
+    Sort sort = Sort.by("id").ascending();
     Pageable pageable = from != null && size != null
-        ? PageRequest.of(from / size, size)
-        : PageRequest.of(0, Integer.MAX_VALUE);
+        ? PageRequest.of(from / size, size, sort)
+        : PageRequest.of(0, Integer.MAX_VALUE, sort);
 
     return storage.findAllByOwnerId(ownerId, pageable)
         .stream()
