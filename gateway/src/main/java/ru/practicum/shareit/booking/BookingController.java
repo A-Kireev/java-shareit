@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +51,7 @@ public class BookingController {
   public ResponseEntity<Object> getAllBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId,
       @RequestParam(required = false, defaultValue = "ALL") BookingFilter state,
       @RequestParam(value = "from", required = false) @PositiveOrZero Integer from,
-      @RequestParam(value = "size", required = false) @PositiveOrZero Integer size) {
+      @RequestParam(value = "size", required = false) @Positive Integer size) {
     return bookingClient.getAllBookingInfo(userId, state, from, size);
   }
 
@@ -58,7 +59,7 @@ public class BookingController {
   public ResponseEntity<Object> getAllOwnerBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId,
       @RequestParam(required = false, defaultValue = "ALL") BookingFilter state,
       @RequestParam(value = "from", required = false) @PositiveOrZero Integer from,
-      @RequestParam(value = "size", required = false) @PositiveOrZero Integer size) {
+      @RequestParam(value = "size", required = false) @Positive Integer size) {
     return bookingClient.getAllOwnerBookingInfo(userId, state, from, size);
   }
 }

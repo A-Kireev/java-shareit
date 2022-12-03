@@ -41,8 +41,8 @@ public class ItemClient extends BaseClient {
 
   public ResponseEntity<Object> getItems(long userId, Integer from, Integer size) {
     Map<String, Object> parameters = Map.of(
-        "from", from,
-        "size", size
+        "from", from != null ? from : 0,
+        "size", size != null ? size : Integer.MAX_VALUE
     );
     return get("?from={from}&size={size}", userId, parameters);
   }
@@ -50,8 +50,8 @@ public class ItemClient extends BaseClient {
   public ResponseEntity<Object> searchItem(String text, long userId, Integer from, Integer size) {
     Map<String, Object> parameters = Map.of(
         "text", text,
-        "from", from,
-        "size", size
+        "from", from != null ? from : 0,
+        "size", size != null ? size : Integer.MAX_VALUE
     );
     return get("/search?text={text}&from={from}&size={size}", userId, parameters);
   }
