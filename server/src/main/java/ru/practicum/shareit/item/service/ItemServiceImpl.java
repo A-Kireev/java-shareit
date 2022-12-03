@@ -68,9 +68,9 @@ public class ItemServiceImpl implements ItemService {
   @Override
   public ItemWithBookingInfoDto getItem(long userId, Long itemId) {
     var item = storage.findById(itemId).orElseThrow(NoSuchElementException::new);
-    var lastBooking = bookingRepository.findByItemIdAndEndDateTimeBeforeOrderByEndDateTimeDesc(itemId,
+    var lastBooking = bookingRepository.findFirstByItemIdAndEndDateTimeBeforeOrderByEndDateTimeDesc(itemId,
         LocalDateTime.now());
-    var nextBooking = bookingRepository.findByItemIdAndStartDateTimeAfterOrderByEndDateTimeAsc(itemId,
+    var nextBooking = bookingRepository.findFirstByItemIdAndStartDateTimeAfterOrderByEndDateTimeAsc(itemId,
         LocalDateTime.now());
     var comments = commentRepository.findAllByItemId(itemId).stream()
         .map(CommentMapper::toCommentDto)
@@ -96,9 +96,9 @@ public class ItemServiceImpl implements ItemService {
     return storage.findAllByOwnerId(ownerId, pageable)
         .stream()
         .map(s -> {
-          var lastBooking = bookingRepository.findByItemIdAndEndDateTimeBeforeOrderByEndDateTimeDesc(s.getId(),
+          var lastBooking = bookingRepository.findFirstByItemIdAndEndDateTimeBeforeOrderByEndDateTimeDesc(s.getId(),
               LocalDateTime.now());
-          var nextBooking = bookingRepository.findByItemIdAndStartDateTimeAfterOrderByEndDateTimeAsc(s.getId(),
+          var nextBooking = bookingRepository.findFirstByItemIdAndStartDateTimeAfterOrderByEndDateTimeAsc(s.getId(),
               LocalDateTime.now());
 
           var itemWithBookingInfoDto = ItemMapper.toItemDtoWithBookingInfoDto(s);
